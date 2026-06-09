@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -19,7 +19,7 @@ export class UsersController {
     }
 
     @Get('profile')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(JwtAuthGuard)
     getProfile(@CurrentUser() user: any) {
         return user;
     }
