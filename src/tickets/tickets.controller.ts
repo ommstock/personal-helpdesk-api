@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { CreateTicketDto } from './dto/create-ticket.dto';
+import { UpdateTicketStatusDto } from './dto/update-ticket-status.dto';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { TicketsService } from './tickets.service';
@@ -16,12 +17,9 @@ export class TicketsController {
     @UseGuards(JwtAuthGuard)
     create(
         @Body() dto: CreateTicketDto,
-        @CurrentUser() user: any,
+        @CurrentUser() user: any, // from jwt token
     ) {
-        // console.log("USER", user);
-        // Using user from JWT token (not from request body)
         return this.ticketsService.create(dto, user.id)
-        // return 'OK';
     }
 
     @Get()
@@ -53,9 +51,9 @@ export class TicketsController {
     @Roles(Role.ADMIN, Role.SUPPORT)
     updateStatus(
         @Param('id') id: string,
-        @Body() dto: { status: TicketStatus },
+        @Body() dto: UpdateTicketStatusDto,
         @CurrentUser() user: any,
     ) {
-        return this.ticketsService.updateStatus(id, dto.status, user.userId)
+        return this.ticketsService.updateStatus(id, dto.status, user.id)
     }
 }
