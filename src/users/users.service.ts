@@ -7,15 +7,15 @@ export class UsersService {
     constructor(private prisma: PrismaService) { }
 
     create(data: CreateUserDto) {
-        return this.prisma.user.create({ data, });
+        return this.prisma.user.create({ data, omit: { password: true } });
     }
 
     findAll() {
-        return this.prisma.user.findMany();
+        return this.prisma.user.findMany({ omit: { password: true } });
     }
 
     findOne(id: string) {
-        return this.prisma.user.findUnique({ where: { 'id': id } });
+        return this.prisma.user.findUnique({ where: { id }, omit: { password: true } });
     }
 
     findByEmail(email: string) {
@@ -23,15 +23,15 @@ export class UsersService {
     }
 
     remove(id: string) {
-        return this.prisma.user.delete({ where: { id } });
+        return this.prisma.user.delete({ where: { id }, omit: { password: true } });
     }
 
     update(id: string, data: CreateUserDto) {
-        return this.prisma.user.update({ where: { id }, data });
+        return this.prisma.user.update({ where: { id }, data, omit: { password: true } });
     }
 
     findByName(name: string) {
-        return this.prisma.user.findMany({ where: { name } });
+        return this.prisma.user.findMany({ where: { name }, omit: { password: true } });
     }
 
     getRole(id: string) {
@@ -39,7 +39,7 @@ export class UsersService {
     }
 
     search(name: string) {
-        return this.prisma.user.findMany({ where: { name } });
+        return this.prisma.user.findMany({ where: { name }, omit: { password: true } });
     }
 
     countAll() {
