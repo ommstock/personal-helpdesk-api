@@ -1,4 +1,5 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketStatusDto } from './dto/update-ticket-status.dto';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
@@ -25,6 +26,8 @@ export class TicketsController {
     @Get()
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(Role.ADMIN, Role.SUPPORT)
+    @UseInterceptors(CacheInterceptor)
+    @CacheTTL(parseInt(process.env.CACHE_TICKETS_TTL || '10000', 10))
     findAll(@CurrentUser() user: any, @Query() query: FilterTicketDto) {
         return this.ticketsService.findAll(query);
     }

@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER } from '@nestjs/core';
+import { CacheModule } from '@nestjs/cache-manager';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { ClsModule } from 'nestjs-cls';
 import { LoggerModule } from 'nestjs-pino';
@@ -7,7 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Request } from 'express';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
@@ -15,9 +16,18 @@ import { TicketsModule } from './tickets/tickets.module';
 
 import jwtConfig from './config/jwt.config';
 import databaseConfig from './config/database.config';
+import cacheConfig from './config/cache.config';
 
 @Module({
   imports: [
+    CacheModule.registerAsync({
+      isGlobal: true,
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        ttl: configService.get<number>('cache.ttl'),
+      }),
+      inject: [ConfigService],
+    }),
     ClsModule.forRoot({
       global: true,
       middleware: {
@@ -38,7 +48,7 @@ import databaseConfig from './config/database.config';
     }),
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [jwtConfig, databaseConfig],
+      load: [jwtConfig, databaseConfig, cacheConfig],
     }),
     UsersModule,
     PrismaModule,
