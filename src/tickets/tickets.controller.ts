@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { UpdateTicketStatusDto } from './dto/update-ticket-status.dto';
@@ -9,6 +9,7 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Role, TicketStatus } from '@prisma/client';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { FilterTicketDto } from './dto/filter-ticket.dto';
+import { AssignTicketDto } from './dto/assign-ticket.dto';
 
 @Controller('tickets')
 export class TicketsController {
@@ -43,7 +44,7 @@ export class TicketsController {
     @Get(':id')
     @UseGuards(JwtAuthGuard)
     findOne(
-        @Param('id') id: string,
+        @Param('id', ParseUUIDPipe) id: string,
         @CurrentUser() user: any,
     ) {
         return this.ticketsService.findOne(id, user)
@@ -53,10 +54,20 @@ export class TicketsController {
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(Role.ADMIN, Role.SUPPORT)
     updateStatus(
-        @Param('id') id: string,
+        @Param('id', ParseUUIDPipe) id: string,
         @Body() dto: UpdateTicketStatusDto,
         @CurrentUser() user: any,
     ) {
         return this.ticketsService.updateStatus(id, dto.status, user.id)
+    }
+
+    @Patch(":id/assign")
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.ADMIN, Role.SUPPORT)
+    assignTicket(
+        @Param("id", ParseUUIDPipe) ticketId: string,
+        @Body() dto: AssignTicketDto,
+    ) {
+        return this.ticketsService.assignTicket(ticketId, dto.userId);
     }
 }

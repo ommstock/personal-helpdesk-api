@@ -13,6 +13,7 @@ import { UsersModule } from './users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { TicketsModule } from './tickets/tickets.module';
+import { CategoryModule } from './category/category.module';
 
 import jwtConfig from './config/jwt.config';
 import databaseConfig from './config/database.config';
@@ -54,6 +55,7 @@ import cacheConfig from './config/cache.config';
     PrismaModule,
     AuthModule,
     TicketsModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [
