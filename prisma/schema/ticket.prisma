@@ -17,6 +17,8 @@ model Ticket {
 
   assignedToId String?
   assignedTo   User?   @relation("AssignedTickets", fields: [assignedToId], references: [id])
+
+  comments Comment[]
 }
 
 enum TicketStatus {

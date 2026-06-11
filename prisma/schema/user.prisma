@@ -8,6 +8,8 @@ model User {
   updatedAt       DateTime @updatedAt
   tickets         Ticket[]
   assignedTickets Ticket[] @relation("AssignedTickets")
+
+  comments Comment[]
 }
 
 enum Role {
