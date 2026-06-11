@@ -1,6 +1,6 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { TicketPriority } from "@prisma/client";
-import { IsEnum, IsString, MinLength } from "class-validator";
+import { IsEnum, IsString, MinLength, IsOptional, IsUUID } from "class-validator";
 
 export class CreateTicketDto {
     @ApiProperty()
@@ -16,4 +16,14 @@ export class CreateTicketDto {
     @ApiProperty()
     @IsEnum(TicketPriority)
     priority: TicketPriority;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsUUID()
+    categoryId?: string;
+
+    @ApiPropertyOptional()
+    @IsOptional()
+    @IsUUID()
+    assigneeId?: string;
 }

@@ -102,19 +102,19 @@ export class TicketsService {
         })
     }
 
-    async assignTicket(ticketId: string, userId: string) {
+    async assignTicket(ticketId: string, assignedId: string) {
         const ticket = await this.prisma.ticket.findUnique({ where: { id: ticketId } })
         if (!ticket) throw new NotFoundException("Ticket not found");
 
-        const user = await this.prisma.user.findUnique({ where: { id: userId } })
+        const user = await this.prisma.user.findUnique({ where: { id: assignedId } })
         if (!user) throw new NotFoundException("User not found")
 
-        if (user.role !== Role.SUPPORT && user.role !== Role.ADMIN) throw new ForbiddenException("User is not a support agent or admin")
+        // if (user.role !== Role.SUPPORT && user.role !== Role.ADMIN) throw new ForbiddenException("User is not a support agent or admin")
 
         return this.prisma.ticket.update({
             where: { id: ticketId },
             data: {
-                assignedToId: userId,
+                assignedToId: assignedId,
             }
         })
     }
