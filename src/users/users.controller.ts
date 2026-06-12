@@ -6,6 +6,7 @@ import { Role } from '@prisma/client';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { AssignRoleDto } from './dto/assign-role.dto';
 
 @Controller('users')
 export class UsersController {
@@ -29,6 +30,13 @@ export class UsersController {
     @UseGuards(JwtAuthGuard)
     getProfile(@CurrentUser() user: any) {
         return user;
+    }
+
+    @Post('assign-role')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.ADMIN)
+    assignRole(@Body() dto: AssignRoleDto) {
+        return this.usersService.assignRole(dto);
     }
 
     // @Get(':id')
