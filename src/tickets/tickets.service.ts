@@ -5,18 +5,36 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { TicketPriority, TicketStatus } from '@prisma/client';
 import { FilterTicketDto } from './dto/filter-ticket.dto';
 import { PaginatedResponseDto } from 'src/common/dto/paginated-response.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { AuditAction, EntityType } from 'src/common/enums/audit.enum';
 
 @Injectable()
 export class TicketsService {
-    constructor(private readonly prisma: PrismaService) { }
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly eventEmitter: EventEmitter2,
+    ) { }
+
+    private emitAuditLog(action: AuditAction, entityId: string, actorId: string) {
+        if (actorId) {
+            this.eventEmitter.emit('audit.log.record', {
+                action,
+                entity: EntityType.TICKET,
+                entityId,
+                userId: actorId,
+            });
+        }
+    }
+
     async create(
         dto: CreateTicketDto,
         userId: string,
     ) {
-        // console.log(userId);
-        return this.prisma.ticket.create({
+        const ticket = await this.prisma.ticket.create({
             data: { ...dto, userId }
-        })
+        });
+        this.emitAuditLog(AuditAction.CREATE, ticket.id, userId);
+        return ticket;
     }
 
     async findByUser(userId: string) {
@@ -79,43 +97,49 @@ export class TicketsService {
         return ticket;
     }
 
-    async updateStatus(id: string, status: TicketStatus, userId: string) {
-        return this.prisma.ticket.update({
-            where: { id },
+    async updateStatus(ticketId: string, status: TicketStatus, userId: string) {
+        const ticket = await this.prisma.ticket.update({
+            where: { id: ticketId },
             data: {
                 status,
                 // resolvedBy: userId, TODO
             },
-        })
+        });
+        this.emitAuditLog(AuditAction.UPDATE_TICKET_STATUS, ticket.id, userId);
+        return ticket;
     }
 
-    async update(id: string, dto: CreateTicketDto) {
-        return this.prisma.ticket.update({
+    async update(id: string, dto: CreateTicketDto, actorId: string) {
+        const ticket = await this.prisma.ticket.update({
             where: { id },
             data: dto,
-        })
+        });
+        this.emitAuditLog(AuditAction.UPDATE, ticket.id, actorId);
+        return ticket;
     }
 
-    async remove(id: string) {
-        return this.prisma.ticket.delete({
+    async remove(id: string, actorId: string) {
+        const ticket = await this.prisma.ticket.delete({
             where: { id },
-        })
+        });
+        this.emitAuditLog(AuditAction.DELETE, ticket.id, actorId);
+        return ticket;
     }
 
-    async assignTicket(ticketId: string, assignedId: string) {
-        const ticket = await this.prisma.ticket.findUnique({ where: { id: ticketId } })
-        if (!ticket) throw new NotFoundException("Ticket not found");
+    async assignTicket(ticketId: string, assignedId: string, actorId: string) {
+        const ticketExists = await this.prisma.ticket.findUnique({ where: { id: ticketId } })
+        if (!ticketExists) throw new NotFoundException("Ticket not found");
 
         const user = await this.prisma.user.findUnique({ where: { id: assignedId } })
         if (!user) throw new NotFoundException("User not found")
 
-        // if (user.role !== Role.SUPPORT && user.role !== Role.ADMIN) throw new ForbiddenException("User is not a support agent or admin")
-
-        return this.prisma.ticket.update({
+        const ticket = await this.prisma.ticket.update({
             where: { id: ticketId },
             data: {
                 assignedToId: assignedId,
             }
-        })
+        });
+        this.emitAuditLog(AuditAction.ASSIGN_TICKET, ticket.id, actorId);
+        return ticket;
     }
 }

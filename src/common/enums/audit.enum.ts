@@ -1,0 +1,13 @@
+export enum AuditAction {
+  CREATE = 'CREATE',
+  UPDATE = 'UPDATE',
+  DELETE = 'DELETE',
+  UPDATE_TICKET_STATUS = 'UPDATE_TICKET_STATUS',
+  ASSIGN_TICKET = 'ASSIGN_TICKET',
+}
+
+export enum EntityType {
+  TICKET = 'TICKET',
+  USER = 'USER',
+  COMMENT = 'COMMENT',
+}

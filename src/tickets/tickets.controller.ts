@@ -69,7 +69,8 @@ export class TicketsController {
     assignTicket(
         @Param("id", ParseUUIDPipe) ticketId: string,
         @Body() dto: AssignTicketDto,
+        @CurrentUser() user: any,
     ) {
-        return this.ticketsService.assignTicket(ticketId, dto.assignedId);
+        return this.ticketsService.assignTicket(ticketId, dto.assignedId, user.id);
     }
 }
