@@ -1,10 +1,5 @@
 # Helpdesk System
 
-
-## Architecture Diagram
-
-![Architecture diagram](./doc/architecture_diagram.png)
-
 ## Microservices
 
 This repository contains the main **Helpdesk API**. 
@@ -41,6 +36,10 @@ Leveraging NestJS's robust DI container, dependencies are explicitly injected. T
 ### 7. Professional Testing
 - Robust End-to-End (E2E) testing suite validating full request lifecycles.
 - Dummy controllers and extensive mocking of external dependencies to ensure fast, reliable test execution.
+
+## Architecture Diagram
+
+![Architecture diagram](./doc/architecture_diagram.png)
 
 ## Project Setup
 
