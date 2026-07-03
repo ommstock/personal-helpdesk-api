@@ -1,4 +1,5 @@
 # Helpdesk System
+This is a project to show my knowledge in NestJS using some architecture patterns and practices to make a software scalable, mantainable, secure and fast.
 
 ## Microservices
 
